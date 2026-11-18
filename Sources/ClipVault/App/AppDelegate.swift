@@ -69,6 +69,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         registerLoginItemOnFirstLaunch()
+        if settings.autoPaste, !Paster.canPostEvents {
+            // Shows the system prompt (once per install) so paste-on-click works from the start.
+            Paster.requestAccess()
+        }
     }
 
     // MARK: - Actions
@@ -83,10 +87,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.close()
 
         guard autoPaste, settings.autoPaste else { return }
-        guard Paster.canPostEvents else {
-            Paster.requestAccess()
-            return
-        }
+        // Post even when the preflight says no: the check can lag behind a permission the
+        // user just granted, and without permission the event is simply dropped.
+        if !Paster.canPostEvents { Paster.requestAccess() }
         Task {
             // Let the panel finish closing so the keystroke reaches the app underneath.
             try? await Task.sleep(for: .milliseconds(70))

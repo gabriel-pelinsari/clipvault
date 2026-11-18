@@ -54,6 +54,15 @@ struct HistoryView: View {
                    text: "Captura pausada — novas cópias não estão sendo salvas.",
                    actionTitle: "Retomar") { model.settings.isCapturePaused = false }
         }
+        if model.settings.autoPaste, !Paster.canPostEvents {
+            Banner(systemImage: "hand.tap.fill", tint: .accentColor,
+                   text: "Para colar direto no campo de texto, ative o ClipVault em Acessibilidade.",
+                   actionTitle: "Permitir…") {
+                model.actions.close()
+                Paster.requestAccess()
+                Paster.openAccessibilitySettings()
+            }
+        }
         if !model.store.isPersistent {
             Banner(systemImage: "exclamationmark.triangle.fill", tint: .red,
                    text: "Sem acesso ao Keychain: o histórico fica só na memória e some ao sair.",
